@@ -1,0 +1,43 @@
+{
+  "name": "基于服务迁移的边缘网络适配优化",
+  "version": "0.0.1",
+  "dataset": [],
+  "training_parameter": [],
+  "predict_parameter": [],
+  "api": [
+    {
+      "name": "predict",
+      "method": [
+        "POST"
+      ],
+      "description": "使用基于服务迁移的边缘网络适配优化方法获得物联网服务调度方案",
+      "parameters": {},
+      "doc": {
+        "input_params": [
+          {
+            "param_name": "ratio",
+            "type": "Double",
+            "description": "网络中产生的服务请求的数据密集型（dl）和计算密集型（cl）任务的比例，取值范围[0,1]，网络中包含五个物理节点"
+          }
+        ],
+        "output_result": [
+          {
+            "name": "code",
+            "type": "Integer",
+            "description": "回执码，0成功，1失败"
+          },
+          {
+            "name": "msg",
+            "type": "String",
+            "description": "回执信息"
+          },
+          {
+            "name": "data",
+            "type": "Map",
+            "description": "返回算法结果，在同一服务模型上使用遗传算法与贪婪算法进行求解，返回两种算法的方案部署结果与当前算法的性能提高比例"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "code": 0,
+  "msg": "获取成功",
+  "status": 2,
+  "report": {
+    "accuracy": -1,
+    "f1Score": -1,
+    "precision": -1,
+    "recall": -1
+  },
+  "log": "2020-02-03 14:55:57 - 训练结束.\""
+}

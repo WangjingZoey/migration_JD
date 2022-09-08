@@ -71,21 +71,19 @@ public class Result<T> implements Serializable {
 
 
     //请求成功（不返回数据）
-    public static <T> Result <T> ok(){
-        return new Result <T>(CodeEnum.SUCCESS);
+    public static <T> Result<T> ok() {
+        return new Result<T>(CodeEnum.SUCCESS);
     }
 
     //请求成功（返回数据）
-    public static <T> Result <T> ok(T data){
-        return new Result <T>(CodeEnum.SUCCESS,data);
+    public static <T> Result<T> ok(T data) {
+        return new Result<T>(CodeEnum.SUCCESS, data);
     }
 
     //参数格式不正确
-    public static <T> Result <T> error(){
-        return new Result <T>(CodeEnum.BAD_REQUEST);
+    public static <T> Result<T> error() {
+        return new Result<T>(CodeEnum.BAD_REQUEST);
     }
-
-
 
 
     @Override

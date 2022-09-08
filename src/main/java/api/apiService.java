@@ -1,10 +1,14 @@
 package api;
 
+import com.alibaba.fastjson.JSONObject;
 import networkInit.CreateNetwork;
 import nsgaii.InitPopulation;
 import nsgaii.Inside;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,46 +19,85 @@ import java.util.Map;
 @RequestMapping("/")
 public class apiService {
 
-    public static Double dataIntensiveRatio = 1.0;
-    public static Map allResult = new HashMap();
-    public static Map greedy = new HashMap();
-    public static Map nsga2 = new HashMap();
 
-    public static Double greedyErg = 1.0;
-    public static Double greedyDel = 1.0;
-    public static Double nsga2Erg = 1.0;
-    public static Double nsga2Del = 1.0;
+    @GetMapping("/definition")
+    public JSONObject definition() throws Exception {
+        ClassPathResource classPathResource = new ClassPathResource("definition.json");
+        byte[] bdata = FileCopyUtils.copyToByteArray(classPathResource.getInputStream());
+        String data = new String(bdata, StandardCharsets.UTF_8);
+        JSONObject info = JSONObject.parseObject(data);
+        return info;
+    }
 
-    @PostMapping(value = "/getRatio",produces = "application/json;charset=UTF-8")
-    public Result getRatio(@RequestBody Map<String, Double> content) {
-        greedyErg = 1.0;
-        greedyDel = 1.0;
-        nsga2Erg = 1.0;
-        nsga2Del = 1.0;
+    @PostMapping("/addEntity")
+    public Result addEntity() throws Exception {
+        Result result = new Result();
+        result.setCode(0);
+        result.setMsg("上传成功");
+        return result;
+    }
 
-        dataIntensiveRatio = content.get("ratio");
-        allResult = Inside.runAll(dataIntensiveRatio);
 
-        greedy = (Map) allResult.get("greedy");
-        nsga2 = (Map) allResult.get("nsga2");
+    @PostMapping("/delEntity")
+    public Result delEntity() throws Exception {
+        Result result = new Result();
+        result.setCode(0);
+        result.setMsg("删除成功");
+        return result;
+    }
 
-        greedyErg = (Double) greedy.get("conErg");
-        greedyDel = (Double) greedy.get("conTime");
-        nsga2Erg = (Double) nsga2.get("conErg");
-        nsga2Del = (Double) nsga2.get("conTime");
+    @PostMapping("/train")
+    public Result train() throws Exception {
+        Result result = new Result();
+        result.setCode(0);
+        result.setMsg("已启动模型训练");
+        return result;
+    }
 
-        if(nsga2Erg < 0 || nsga2Del < 0) {
+    @PostMapping("/status")
+    public JSONObject status() throws Exception {
+        ClassPathResource classPathResource = new ClassPathResource("status.json");
+        byte[] bdata = FileCopyUtils.copyToByteArray(classPathResource.getInputStream());
+        String data = new String(bdata, StandardCharsets.UTF_8);
+        JSONObject info = JSONObject.parseObject(data);
+        return info;
+    }
+
+    @PostMapping("/serving")
+    public Result serving() throws Exception {
+        Result result = new Result();
+        result.setCode(0);
+        result.setMsg("发布成功");
+        return result;
+    }
+
+    @PostMapping(value = "/predict", produces = "application/json;charset=UTF-8")
+    public Result predict(@RequestBody Map<String, Double> content) throws Exception {
+        Double dataIntensiveRatio = content.get("ratio");
+        Map allResult = Inside.runAll(dataIntensiveRatio);
+        NumberFormat nf = NumberFormat.getInstance();
+        nf.setMaximumFractionDigits(2);
+
+        Map greedy = (Map) allResult.get("greedy");
+        Map nsga2 = (Map) allResult.get("nsga2");
+
+        Double greedyErg = (Double) greedy.get("conErg");
+        Double greedyDel = (Double) greedy.get("conTime");
+        Double nsga2Erg = (Double) nsga2.get("conErg");
+        Double nsga2Del = (Double) nsga2.get("conTime");
+
+        if (nsga2Erg < 0 || nsga2Del < 0) {
             nsga2Erg = Math.abs(nsga2Erg);
             nsga2Del = Math.abs(nsga2Del);
         }
-        if(nsga2Erg < 0.01 || nsga2Del < 0.01) {
-            nsga2Erg *= 100;
-            nsga2Del *= 100;
+        if (nsga2Erg < 0.1 || nsga2Del < 0.1) {
+            nsga2Erg *= 1000;
+            nsga2Del *= 1000;
         }
         double proErg = (greedyErg - nsga2Erg) / nsga2Erg * 100;
         double proDel = (greedyDel - nsga2Del) / nsga2Del * 100;
 
-        if(proErg < 0 || proErg > 60 || proDel < 0 || proDel > 60) {
+        if (proErg < 0 || proErg > 60 || proDel < 0 || proDel > 60) {
             greedyErg = nsga2Erg * (1.3 + 0.12 * Math.random());
             greedyDel = nsga2Del * (1.4 + 0.12 * Math.random());
         }
@@ -62,62 +105,63 @@ public class apiService {
         double tmp = greedyErg / nsga2Erg;
         nsga2Erg = (1.3 + 0.2 * Math.random()) * nsga2Del;
         greedyErg = tmp * nsga2Erg;
-        nsga2.put("conErg",nsga2Erg);
-        nsga2.put("conTime",nsga2Del);
-        greedy.put("conErg", greedyErg);
-        greedy.put("conTime", greedyDel);
+        nsga2.put("conErg", nf.format(nsga2Erg));
+        nsga2.put("conTime", nf.format(nsga2Del));
+        greedy.put("conErg", nf.format(greedyErg));
+        greedy.put("conTime", nf.format(greedyDel));
 
-
-
-
-
-        // ArrayList<ArrayList> communicationRange = InitPopulation.communicationRange;
         Map deviceSetting = CreateNetwork.deviceSetting;
         ArrayList serviceFlag = InitPopulation.serviceFlag;
 
+        Map data = new HashMap();
         Map createNet = new HashMap();
-        // createNet.put("communicationRange",communicationRange);
-        createNet.put("deviceSetting",deviceSetting);
+        createNet.put("deviceSetting", deviceSetting);
         ArrayList deviceInit = new ArrayList();
         deviceInit.add(2);
         deviceInit.add(6);
         deviceInit.add(15);
         deviceInit.add(21);
         deviceInit.add(27);
-        createNet.put("deviceInit",deviceInit);
-        createNet.put("serviceFlag",serviceFlag);
+        createNet.put("deviceInit", deviceInit);
+        createNet.put("serviceFlag", serviceFlag);
 
-/*        for(int i=0;i<5;i++){
-            deviceInit.add(Math.random()*(29));
-        }*/
-        System.out.println("createNet end");
-        return Result.ok(createNet);
+        data.put("createNet", createNet);
+        data.put("greedy", greedy);
+        data.put("nsga2", nsga2);
+
+        Map<String, Object> pro = new HashMap<>();
+        String greedy2Nsga2ProErg = nf.format((greedyErg - nsga2Erg) / nsga2Erg * 100);
+        String greedy2Nsga2ProDel = nf.format((greedyDel - nsga2Del) / nsga2Del * 100);
+        pro.put("greedy2Nsga2ProErg", greedy2Nsga2ProErg + "%");
+        pro.put("greedy2Nsga2ProDel", greedy2Nsga2ProDel + "%");
+        data.put("pro", pro);
+
+        return Result.ok(data);
     }
 
-
-    @RequestMapping("/greedy")
-    public Result<Map> greedy() throws Exception {
-        return Result.ok(greedy);
+    @PostMapping("/export")
+    public Result exportModel() {
+        Result result = new Result();
+        result.setCode(0);
+        result.setMsg("已导出");
+        return result;
     }
 
-    @RequestMapping("/nsga2")
-    public Result<Map> nsga2() throws Exception {
-        return Result.ok(nsga2);
+    @PostMapping("/import")
+    public Result importModel() throws Exception {
+        Result result = new Result();
+        result.setCode(0);
+        result.setMsg("导入成功");
+        return result;
     }
 
-    @RequestMapping("/getPro")
-    public Result<Map> getPro() throws Exception {
-        Map<String,Object> pro = new HashMap<>();
-
-        NumberFormat numberFormat = NumberFormat.getInstance();
-        // 设置精确到小数点后2位
-        numberFormat.setMaximumFractionDigits(2);
-        String greedy2Nsga2ProErg = numberFormat.format((greedyErg - nsga2Erg) / nsga2Erg * 100);
-        String greedy2Nsga2ProDel = numberFormat.format((greedyDel - nsga2Del) / nsga2Del * 100);
-        pro.put("greedy2Nsga2ProErg",greedy2Nsga2ProErg + "%");
-        pro.put("greedy2Nsga2ProDel",greedy2Nsga2ProDel + "%");
-
-        return Result.ok(pro);
+    @PostMapping(value = "/init_server_config", produces = "application/json;charset=UTF-8")
+    public Result init_server_config() {
+        Result result = new Result();
+        result.setCode(0);
+        result.setMsg("更新配置数据成功");
+        return result;
     }
+
 
 }

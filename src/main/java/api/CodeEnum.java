@@ -9,7 +9,7 @@ public enum CodeEnum {
     /**
      * 参数不齐全或参数错误
      */
-    BAD_REQUEST(1,"参数不正确");
+    BAD_REQUEST(1, "参数不正确");
 
     private Integer code;
     private String message;
