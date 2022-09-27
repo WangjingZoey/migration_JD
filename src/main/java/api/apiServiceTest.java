@@ -41,7 +41,6 @@ public class apiServiceTest {
 
     @Test
     public void testStatus() throws Exception {
-        String s = "0.5";
         MvcResult mvcResult = mockmvc.perform(
                 MockMvcRequestBuilders.post("/status").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.status().isOk())
