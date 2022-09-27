@@ -74,6 +74,11 @@ public class apiService {
     @PostMapping(value = "/predict", produces = "application/json;charset=UTF-8")
     public Result predict(@RequestBody Map<String, Double> content) throws Exception {
         Double dataIntensiveRatio = content.get("ratio");
+        if (dataIntensiveRatio < 0 || dataIntensiveRatio > 1) {
+            Result result = Result.error();
+            result.setMsg("Illegal ratio!");
+            return result;
+        }
         Map allResult = Inside.runAll(dataIntensiveRatio);
         NumberFormat nf = NumberFormat.getInstance();
         nf.setMaximumFractionDigits(2);
