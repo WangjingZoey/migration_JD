@@ -1,6 +1,6 @@
 {
   "code": 0,
-  "msg": "获取成功",
+  "message": "获取成功",
   "status": 2,
   "report": {
     "accuracy": -1,

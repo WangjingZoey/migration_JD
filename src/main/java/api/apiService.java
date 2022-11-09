@@ -16,7 +16,7 @@ import java.util.Map;
 
 @CrossOrigin
 @RestController
-@RequestMapping("/")
+@RequestMapping("/migration/")
 public class apiService {
 
 
@@ -31,27 +31,18 @@ public class apiService {
 
     @PostMapping("/addEntity")
     public Result addEntity() throws Exception {
-        Result result = new Result();
-        result.setCode(0);
-        result.setMsg("上传成功");
-        return result;
+        return Result.ok("上传成功");
     }
 
 
     @PostMapping("/delEntity")
     public Result delEntity() throws Exception {
-        Result result = new Result();
-        result.setCode(0);
-        result.setMsg("删除成功");
-        return result;
+        return Result.ok("删除成功");
     }
 
     @PostMapping("/train")
     public Result train() throws Exception {
-        Result result = new Result();
-        result.setCode(0);
-        result.setMsg("已启动模型训练");
-        return result;
+        return Result.ok("已启动模型训练");
     }
 
     @PostMapping("/status")
@@ -65,10 +56,7 @@ public class apiService {
 
     @PostMapping("/serving")
     public Result serving() throws Exception {
-        Result result = new Result();
-        result.setCode(0);
-        result.setMsg("发布成功");
-        return result;
+        return Result.ok("发布成功");
     }
 
     @PostMapping(value = "/predict", produces = "application/json;charset=UTF-8")
@@ -76,7 +64,7 @@ public class apiService {
         Double dataIntensiveRatio = content.get("ratio");
         if (dataIntensiveRatio < 0 || dataIntensiveRatio > 1) {
             Result result = Result.error();
-            result.setMsg("Illegal ratio!");
+            result.setMessage("Illegal ratio!");
             return result;
         }
         Map allResult = Inside.runAll(dataIntensiveRatio);
@@ -146,26 +134,18 @@ public class apiService {
 
     @PostMapping("/export")
     public Result exportModel() {
-        Result result = new Result();
-        result.setCode(0);
-        result.setMsg("已导出");
-        return result;
+        return Result.ok("已导出");
+
     }
 
     @PostMapping("/import")
     public Result importModel() throws Exception {
-        Result result = new Result();
-        result.setCode(0);
-        result.setMsg("导入成功");
-        return result;
+        return Result.ok("导入成功");
     }
 
-    @PostMapping(value = "/init_server_config", produces = "application/json;charset=UTF-8")
+    @PostMapping(value ="/init_server_config",produces = "application/json;charset=UTF-8")
     public Result init_server_config() {
-        Result result = new Result();
-        result.setCode(0);
-        result.setMsg("更新配置数据成功");
-        return result;
+        return Result.ok("更新配置数据成功");
     }
 
 
